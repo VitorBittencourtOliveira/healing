@@ -1,0 +1,83 @@
+{% extends "shared/base.html" %}
+{% load static %}
+  {% block 'title' %}
+  Escolher horário - Healing
+  {% endblock %}
+{% block 'head' %}
+    <link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}">
+    <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
+    <link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}">
+    <link rel="stylesheet" href="{% static 'pacientes/css/home.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock 'head' %}
+{% block 'body' %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% include "partials/_navbar.html" %}
+    <div class="container">
+        <br><br>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-3"><img src="{{medico.foto.url}}" class="foto-perfil-card-lg" alt=""></div>
+                    <div class="col-md">
+                        <p style="font-size: 20px" class="p-bold">Dr(a). {{medico.nome}} <i class="bi bi-patch-check-fill icon-main"></i></p>
+                        <p>{{medico.descricao}}</p>
+                    </div>
+                </div> 
+                <br>
+                {% if messages %}
+                    <br>
+                    {% for message in messages %}
+                        <section class="alert {{message.tags}}">
+                            {{message}}
+                        </section>
+                    {% endfor %}
+                {% endif %} 
+                <hr>
+                <div class="row">
+                    {% for data_aberta in datas_abertas %}
+                        <div class="col-md-3">
+                            <a class="link" href="#" onclick="event.preventDefault(); confirmarConsulta('{% url 'agendar_horario' data_aberta.id %}', '{{data_aberta.data}}')">
+                            <div class='selecionar-dia'>
+                            <div class="header-dias">
+                                <span class="mes">
+                                {{data_aberta.data|date:"F"}}
+                                </span>
+                                <span class="dia-semana">
+                                {{data_aberta.data|date:"l"}}
+                                </span>
+                            </div>
+            
+                            <div class="conteudo-data" style="text-align:center;">
+                                {{data_aberta.data|date:"d/m/y \à\s H:i" }}
+                            </div>
+                            </div>
+                        </a>
+                        <br>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-4">
+            </div>
+        </div>
+    </div>
+    <script>
+        function confirmarConsulta(url, data) {
+            Swal.fire({
+                title: 'Você tem certeza?',
+                text: "Marcar consulta para " + data + "?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sim, marcar!',
+                cancelButtonText: 'Não, cancelar!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            })
+        }
+    </script>
+{% endblock 'body' %}

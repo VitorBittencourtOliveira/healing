@@ -1,0 +1,109 @@
+{% extends "shared/base.html" %}
+{% load static %}
+  {% block 'title' %}
+  Consulta - Healing
+  {% endblock %}
+{% block 'head' %}
+    <link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}">
+    <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
+    <link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}">
+    <link rel="stylesheet" href="{% static 'pacientes/css/home.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock 'head' %}
+{% block 'body' %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% include "partials/_navbar.html" %}
+    <br><br>
+    <div class="container">
+        {% if consulta.status == 'C' %}
+            <div class="alert alert-danger" role="alert">
+                Consulta cancelada
+            </div>
+        {% elif consulta.status == 'F' %}
+            <div class="alert alert-success" role="alert">
+                Consulta Finalizada
+            </div>
+        {% elif consulta.status == 'I' %}
+            <div class="alert alert-primary" role="alert">
+                Consulta inicializada, acesse o link imediatamente!
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-3"><img src="{{dados_medico.foto.url}}" class="foto-perfil-card-lg" alt=""></div>
+                    <div class="col-md">
+                        <p style="font-size: 20px" class="p-bold">Dr(a). {{dados_medico.nome}} <i class="bi bi-patch-check-fill icon-main"></i></p>
+                        <p>{{dados_medico.descricao}}</p>
+                        <p class="p-bold">{{consulta.data_aberta.data}}</p>
+                        {% if consulta.status != 'C' and consulta.status != 'F' %}<a href="#" onclick="event.preventDefault(); confirmarCancelamento('{% url 'cancelar_consulta' consulta.id %}')" class="btn btn-danger">Cancelar consulta</a>{% endif %}
+                    </div>
+                </div> 
+                <hr>
+                <br>
+                <div class="row">
+                    <div class="col-md">
+                        
+                        <p><i class="color-dark bi bi-check-circle-fill"></i> Consulta agendada</p>
+                    </div>
+                    <div class="col-md">
+                        <p><i class="{% if consulta.status == 'F' %}color-dark{% endif %} bi bi-check-circle-fill"></i> Consulta realizada</p>
+                    </div>
+                    <div class="col-md">
+                        <p><i class="bi bi-check-circle-fill"></i> Consulta Avaliada</p>
+                    </div>
+                </div>
+                <hr>
+                <h3 class="p-bold">Detalhes da consulta</h3>
+                <p style="font-size:20px"><i class="bi bi-calendar3 color-dark"></i>&nbsp {{consulta.data_aberta.data}}</p>
+                <p style="font-size:20px"><i class="bi bi-tag-fill color-dark"></i></i>&nbsp R$ {{dados_medico.valor_consulta|floatformat:2}}</p>
+                {% if consulta.status == 'F' or consulta.status == 'C' %}
+                {% else %}
+                    <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Consulta com Dr(a) {{dados_medico.nome}}&dates={{consulta.data_aberta.data|date:'Ymd'}}T{{consulta.data_aberta.data|date:'His' }}/{{consulta.data_aberta.data|date:'Ymd'}}T{{consulta.data_aberta.data|date:'His'}}&details={{dados_medico.especialidade}}&location={{dados_medico.rua}}, {{dados_medico.numero}}" target="_blank" class="btn btn-dark-color-outline btn-lg{% if consulta.status == 'F' or consulta.status == 'C' %} disabled{% endif %}">Adicione em seu calendário!</a>
+                {% endif %}    
+                <hr>
+                {% if consulta.status == 'F' or consulta.status == 'C' %}
+                {% else %}
+                    <h3 class="p-bold">Como acessar ?</h3>
+                    <p>No horário da consulta acesse o link disponível abaixo</p>
+                    {% if consulta.status == 'I' and consulta.link and consulta.status != 'F' and consulta.status != 'C' %}
+                        <a href="{{consulta.link}}" class="btn btn-success btn-dark-color btn-lg" target="_blank">Acessar consulta</a>
+                    {% else %}
+                        <a href="#" class="btn btn-success btn-dark-color btn-lg disabled" >Acessar consulta</a>
+                    {% endif %}
+                    <hr>
+                {% endif %}
+                {% if consulta.status != 'F' %}
+                {% else %}
+                    <h3 class="p-bold">Meus documentos</h3>
+                    <br>
+                    {% for documento in documentos %}
+                        <br>
+                            <a href="{{documento.documento.url}}" class="link documentos" target="_blank"><i class="bi bi-file-arrow-down"></i> {{documento.titulo}} - {{documento.consulta.data_aberta.data.year}}</a>
+                        <br><br>
+                    {% endfor %}
+                    <br><br><br><br>
+                {% endif %}
+            </div>
+            <div class="col-md"></div>
+        </div>
+    </div>
+    <script>
+        function confirmarCancelamento(url) {
+            Swal.fire({
+                title: 'Você tem certeza?',
+                text: "Cancelar esta consulta?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sim, cancelar!',
+                cancelButtonText: 'Não, manter!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            })
+        }
+    </script>
+{% endblock 'body' %}

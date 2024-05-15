@@ -1,0 +1,53 @@
+{% extends "shared/base.html" %}
+{% load static %}
+  {% block 'title' %}
+  Abrir horário - Healing
+  {% endblock %}
+{% block 'head' %}
+    <link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}">
+    <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
+    <link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock 'head' %}
+{% block 'body' %}
+    {% include "partials/_navbar.html" %}
+    <div class="container">
+        <br><br>
+        <div class="row">
+            <div class="col-md-8">
+                <img src="{{dados_medicos.foto.url}}"  class="foto-perfil" alt="">
+                <label style="margin-left: 30px; font-size: 25px" class="p-bold">Olá, <span class="color-dark">{{request.user.first_name}} {{request.user.last_name}}</span></label>
+                <br>
+                {% if messages %}
+                    <br>
+                    {% for message in messages %}
+                        <section class="alert {{message.tags}}">
+                            {{message}}
+                        </section>
+                    {% endfor %}
+                {% endif %}
+                <br>
+                <p style="font-size: 25px" class="p-bold">Abrir horários para consultas</p>
+                <hr>
+                <form action="{% url 'abrir_horario' %}" method="POST">{% csrf_token %}
+                    <label for="">Escolher data:</label>
+                    <input type="datetime-local" name="data" class="form-control shadow-main-color">
+                    <br>
+                    <input type="submit" value="Salvar" class="btn btn-success btn-dark-color">
+                </form>
+            </div>
+            <div class="col-md-4">
+                <p style="font-size: 25px" class="p-bold">Seus horários:</p>
+                {% for data in datas_abertas %}
+                    <li class="list-group-item">
+                        {% if data.agendado == True %}
+                            <i class="color-dark bi bi-patch-check-fill"></i></i> {{data.data|date:"d/m/Y \à\s H:i"}} <i class="bi bi-arrow-right"></i> Agendado
+                        {% else %}
+                            <a href="{% url 'del_horario' data.id %}" title="Excluir horário"><i class="bi bi-trash-fill text-danger"></i></a> {{data.data|date:"d/m/Y \à\s H:i"}} <i class="bi bi-arrow-right"></i> Disponivel
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock 'body' %}
